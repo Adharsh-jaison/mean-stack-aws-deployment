@@ -1,0 +1,47 @@
+services:
+
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    image: groot321/node-backend:latest
+    container_name: backend
+    restart: always
+    ports:
+      - "7070:8080"   # 👈 FIXED HERE
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - MONGO_URL=mongodb://mongodb:27017/yourdbname
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    image: groot321/angular-frontend:latest
+    container_name: frontend
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
