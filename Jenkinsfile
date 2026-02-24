@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKERHUB_USERNAME = "groot321"
         DOCKERHUB_CREDENTIALS = "groot321"
-        PROJECT_DIR = "D:\\DD\\crud-dd-task-mean-app\\mean-crud-devops-project"
     }
 
     stages {
@@ -17,7 +16,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                bat 'docker compose build'
+                sh 'docker compose build'
             }
         }
 
@@ -28,8 +27,8 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    bat '''
-                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     '''
                 }
             }
@@ -37,31 +36,30 @@ pipeline {
 
         stage('Push Images to DockerHub') {
             steps {
-                bat 'docker compose push'
+                sh 'docker compose push'
             }
         }
 
         stage('Deploy Latest Images') {
             steps {
-                bat """
-                    cd /d ${PROJECT_DIR}
+                sh '''
                     docker compose pull
                     docker compose down
                     docker compose up -d
-                """
+                '''
             }
         }
 
         stage('Docker Logout') {
             steps {
-                bat 'docker logout'
+                sh 'docker logout'
             }
         }
     }
 
     post {
         always {
-            bat 'docker system prune -f'
+            sh 'docker system prune -f'
         }
     }
 }
