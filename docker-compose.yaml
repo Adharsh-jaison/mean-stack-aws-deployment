@@ -17,7 +17,7 @@ services:
     container_name: backend
     restart: always
     ports:
-      - "7070:8080"   # 👈 FIXED HERE
+      - "7070:8080"   
     depends_on:
       - mongodb
     environment:
